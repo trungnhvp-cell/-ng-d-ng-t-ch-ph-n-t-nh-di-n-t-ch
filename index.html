@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ứng Dụng Tích Phân - Thầy Nguyễn Hữu Trung</title>
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<style>
+:root{
+  --pri:#0B3D91; --pri-2:#1a5fc4; --accent:#F5B400; --bg:#f4f6fb;
+  --ink:#1c2333; --muted:#667085; --ok:#0f9d58; --bad:#d92d20;
+  --card:#ffffff; --line:#e4e9f2; --shadow:0 4px 16px rgba(11,61,145,.08);
+  --soft:#eaf1fb; --soft-2:#dbe8f8;
+}
+*{box-sizing:border-box;}
+body{font-family:'Segoe UI',system-ui,Tahoma,sans-serif;margin:0;color:var(--ink);background:var(--bg);line-height:1.6;}
+header{background:linear-gradient(120deg,#0B3D91 0%,#1a5fc4 100%);color:#fff;padding:18px 24px;display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;box-shadow:0 2px 12px rgba(11,61,145,.15);}
+header h1{margin:0;font-size:clamp(15px,2vw,20px);letter-spacing:.3px;}
+header p{margin:4px 0 0;font-size:13px;opacity:.9;font-style:italic;}
+.btn-guide{background:#fff;color:var(--pri);border:none;padding:10px 16px;border-radius:8px;cursor:pointer;font-weight:700;font-size:13px;transition:.2s;}
+.btn-guide:hover{transform:translateY(-1px);box-shadow:0 4px 10px rgba(0,0,0,.15);}
+nav{background:var(--soft);display:flex;overflow-x:auto;position:sticky;top:0;z-index:50;border-bottom:2px solid var(--line);}
+nav button{flex:0 0 auto;color:var(--pri);padding:15px 20px;background:none;border:none;cursor:pointer;font-size:14px;font-weight:600;border-bottom:3px solid transparent;transition:.2s;white-space:nowrap;}
+nav button:hover{background:var(--soft-2);}
+nav button.active{color:#fff;background:var(--pri);border-bottom-color:var(--accent);}
+.container{max-width:1080px;margin:22px auto;padding:0 16px 60px;}
+.tab-content{display:none;background:var(--card);padding:24px;border-radius:14px;box-shadow:var(--shadow);animation:fade .35s ease;}
+.tab-content.active{display:block;}
+@keyframes fade{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:none;}}
+h2{color:var(--pri);margin-top:0;font-size:22px;padding-bottom:8px;border-bottom:2px solid var(--line);}
+h3{color:var(--pri-2);font-size:17px;}
+.theory-box{border-left:5px solid var(--pri);background:linear-gradient(90deg,var(--soft),#f7faff);padding:16px 18px;margin-bottom:18px;border-radius:10px;}
+.theory-box ul{margin:8px 0;padding-left:22px;}
+.theory-box li{margin:6px 0;}
+.theory-img{max-width:100%;display:block;margin:12px auto;}
+
+.group-tabs{display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap;}
+.group-tabs button{padding:10px 18px;cursor:pointer;border:2px solid var(--pri);background:#fff;color:var(--pri);border-radius:8px;font-weight:700;font-size:13px;transition:.2s;}
+.group-tabs button:hover{background:var(--soft);}
+.group-tabs button.active{background:var(--pri);color:#fff;box-shadow:0 4px 10px rgba(11,61,145,.25);}
+
+.question-card{background:#fff;border:1px solid var(--line);padding:16px 18px;margin-bottom:14px;border-radius:12px;transition:.2s;}
+.question-card:hover{border-color:#bcd0f0;box-shadow:0 4px 12px rgba(11,61,145,.06);}
+.question-card p{margin:0 0 10px;}
+.options{display:flex;flex-direction:column;gap:8px;margin-top:8px;}
+.options label{cursor:pointer;font-weight:600;display:flex;align-items:flex-start;gap:10px;padding:10px 14px;border:2px solid var(--line);border-radius:8px;transition:.15s;font-size:15px;}
+.options label:hover{border-color:var(--pri-2);background:#f2f7ff;}
+.options label input{margin-top:5px;}
+.feedback{margin-top:10px;padding:10px 14px;border-radius:8px;font-weight:600;display:none;font-size:14px;}
+.feedback.show{display:block;}
+.feedback.good{background:#e8f8ef;color:var(--ok);border-left:4px solid var(--ok);}
+.feedback.bad{background:#fdeceb;color:var(--bad);border-left:4px solid var(--bad);}
+
+.sat-header{display:flex;justify-content:space-between;align-items:center;background:linear-gradient(120deg,#0B3D91,#1a5fc4);color:#fff;padding:14px 18px;border-radius:10px;margin-bottom:18px;}
+.timer{font-size:22px;font-weight:700;font-family:'Courier New',monospace;background:#fff;padding:6px 16px;border-radius:8px;color:var(--pri);border:2px solid var(--accent);}
+.progress-bar{height:8px;background:#e4e9f2;border-radius:99px;margin-bottom:16px;overflow:hidden;}
+.progress-bar>span{display:block;height:100%;background:linear-gradient(90deg,var(--pri),var(--pri-2));transition:width .3s;}
+.part-label{display:inline-block;background:var(--soft);color:var(--pri);padding:4px 12px;border-radius:20px;font-size:12px;font-weight:800;margin-bottom:10px;letter-spacing:.3px;}
+.sat-question{font-size:17px;margin-bottom:18px;padding:16px;background:#f7faff;border-radius:10px;border-left:4px solid var(--pri);}
+.sat-options button{display:flex;align-items:flex-start;gap:12px;width:100%;text-align:left;padding:14px 16px;margin-bottom:10px;border:2px solid var(--line);background:#fff;border-radius:10px;cursor:pointer;font-size:15px;transition:.2s;font-family:inherit;}
+.sat-options button:hover{background:#f2f7ff;border-color:var(--pri-2);}
+.sat-options button.selected{background:var(--pri);color:#fff;border-color:var(--pri);}
+.sat-options button .tag{font-weight:800;flex:0 0 24px;}
+
+.tf-subs{display:flex;flex-direction:column;gap:10px;}
+.tf-sub{padding:12px 14px;border:1px solid var(--line);border-radius:10px;background:#fff;}
+.tf-sub-text{margin:0 0 10px;font-size:15px;}
+.tf-sub-text b{color:var(--pri);margin-right:6px;}
+.tf-sub-choices{display:flex;gap:16px;}
+.tf-sub-choices label{cursor:pointer;font-weight:700;display:flex;align-items:center;gap:6px;padding:6px 14px;border:2px solid var(--line);border-radius:8px;font-size:13px;}
+.tf-sub-choices label:hover{border-color:var(--pri-2);background:#f2f7ff;}
+
+.short-answer-wrap{display:flex;gap:10px;align-items:center;flex-wrap:wrap;}
+.short-answer-wrap input{flex:1;min-width:200px;padding:14px 16px;border:2px solid var(--line);border-radius:10px;font-size:16px;font-family:inherit;outline:none;}
+.short-answer-wrap input:focus{border-color:var(--pri-2);}
+
+.sat-nav{display:flex;justify-content:space-between;gap:12px;margin-top:22px;flex-wrap:wrap;}
+.sat-nav button{padding:12px 22px;border:none;border-radius:9px;cursor:pointer;font-weight:700;font-size:14px;transition:.2s;font-family:inherit;}
+.sat-nav .prev{background:#e4e9f2;color:var(--ink);}
+.sat-nav .next{background:var(--pri);color:#fff;}
+.sat-nav button:hover{transform:translateY(-1px);box-shadow:0 4px 10px rgba(11,61,145,.15);}
+.sat-nav button:disabled{opacity:.4;cursor:not-allowed;transform:none;}
+
+.result-box{text-align:center;padding:30px 20px;}
+.result-box h2{border:none;}
+#sat-score{font-size:44px;color:var(--pri);margin:10px 0;}
+.score-breakdown{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin:20px 0;text-align:left;}
+.score-card{background:var(--soft);padding:14px 16px;border-radius:10px;border-left:4px solid var(--pri);}
+.score-card b{display:block;color:var(--pri);font-size:20px;}
+.score-card small{color:var(--muted);font-size:12px;}
+
+input[type=password],input[type=text]{padding:11px 14px;border:2px solid var(--line);border-radius:9px;font-family:inherit;font-size:14px;outline:none;}
+input:focus{border-color:var(--pri-2);}
+.btn-primary{padding:11px 20px;background:var(--pri);color:#fff;border:none;border-radius:9px;cursor:pointer;font-weight:700;font-family:inherit;transition:.2s;}
+.btn-primary:hover{background:var(--pri-2);}
+
+#ai-chat-btn{position:fixed;bottom:22px;right:22px;background:linear-gradient(135deg,#db4437,#f55742);color:#fff;border:none;padding:14px 20px;border-radius:99px;cursor:pointer;box-shadow:0 6px 20px rgba(219,68,55,.4);font-size:14px;font-weight:700;z-index:1000;transition:.2s;}
+#ai-chat-btn:hover{transform:translateY(-2px);}
+#ai-chat-window{display:none;position:fixed;bottom:84px;right:22px;width:min(380px,calc(100vw - 44px));background:#fff;border-radius:14px;box-shadow:0 12px 40px rgba(11,61,145,.25);z-index:1000;flex-direction:column;overflow:hidden;}
+#ai-chat-header{background:linear-gradient(120deg,#db4437,#f55742);color:#fff;padding:13px 16px;display:flex;justify-content:space-between;align-items:center;font-weight:700;font-size:14px;}
+#ai-chat-body{height:340px;padding:12px;overflow-y:auto;background:#fafafa;font-size:14px;}
+#ai-chat-input-area{display:flex;border-top:1px solid var(--line);}
+#ai-chat-input{flex:1;border:none;padding:12px;outline:none;font-family:inherit;font-size:14px;}
+#ai-chat-send{background:#db4437;color:#fff;border:none;padding:0 18px;cursor:pointer;font-weight:700;font-family:inherit;}
+.msg-user{text-align:right;margin:8px 0;}
+.msg-user>span{background:var(--pri);color:#fff;padding:9px 14px;border-radius:14px 14px 2px 14px;display:inline-block;max-width:82%;}
+.msg-ai{text-align:left;margin:8px 0;}
+.msg-ai>span{background:#eef2f8;color:var(--ink);padding:9px 14px;border-radius:14px 14px 14px 2px;display:inline-block;max-width:82%;}
+
+@media(max-width:600px){
+  .sat-header{flex-direction:column;gap:10px;}
+  .result-box h2{font-size:20px;}
+  #sat-score{font-size:34px;}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <h1>ỨNG DỤNG TÍCH PHÂN TÍNH DIỆN TÍCH HÌNH PHẲNG</h1>
+    <p>Thiết kế bởi: Thầy Nguyễn Hữu Trung — THPT Trần Phú — SĐT: 0964848989</p>
+  </div>
+  <button class="btn-guide" onclick="openApiGuide()">🔑 Hướng dẫn lấy API Gemini</button>
+</header>
+
+<nav>
+  <button class="nav-btn active" onclick="openTab(event,'theory')">1. Kiến Thức Cơ Bản</button>
+  <button class="nav-btn" onclick="openTab(event,'quiz-mc')">2. Trắc Nghiệm 4 Đáp Án</button>
+  <button class="nav-btn" onclick="openTab(event,'quiz-sat')">3. Phòng Thi (Mẫu Bộ GD)</button>
+  <button class="nav-btn" onclick="openTab(event,'api-guide')">4. Cấu Hình AI</button>
+</nav>
+
+<div class="container">
+  <!-- TAB 1 -->
+  <div id="theory" class="tab-content active">
+    <h2>1. Kiến thức cơ bản</h2>
+    <div class="theory-box">
+      <h3>1.1 Diện tích hình phẳng giới hạn bởi một đồ thị và trục Ox</h3>
+      <p>Cho hàm số \(y=f(x)\) liên tục trên \([a;b]\). Diện tích \(S\) của hình phẳng giới hạn bởi \(y=f(x)\), trục \(Ox\) và hai đường \(x=a,\ x=b\) là:</p>
+      <p style="text-align:center;font-size:22px;">\[S=\int_a^b |f(x)|\,dx.\]</p>
+      <p><i>Chú ý:</i> \(f(x)\ge 0 \Rightarrow S=\int_a^b f(x)dx\); \(f(x)\le 0 \Rightarrow S=-\int_a^b f(x)dx\).</p>
+      <svg width="320" height="200" viewBox="0 0 320 200" class="theory-img">
+        <line x1="20" y1="170" x2="300" y2="170" stroke="#333" stroke-width="2"/>
+        <line x1="50" y1="190" x2="50" y2="20" stroke="#333" stroke-width="2"/>
+        <path d="M 80 170 Q 160 20 240 170" fill="rgba(11,61,145,.18)" stroke="#1a5fc4" stroke-width="2.5"/>
+        <line x1="80" y1="170" x2="80" y2="90" stroke="#666" stroke-dasharray="5,5"/>
+        <line x1="240" y1="170" x2="240" y2="90" stroke="#666" stroke-dasharray="5,5"/>
+        <text x="72" y="188">a</text><text x="234" y="188">b</text>
+        <text x="150" y="130" font-size="22" fill="#0B3D91" font-weight="bold">S</text>
+        <text x="250" y="80" font-size="14" fill="#1a5fc4" font-style="italic">y = f(x)</text>
+      </svg>
+    </div>
+    <div class="theory-box">
+      <h3>1.2 Diện tích hình phẳng giới hạn bởi hai đồ thị</h3>
+      <p>Cho \(y=f(x),\,y=g(x)\) liên tục trên \([a;b]\). Diện tích \(S\) giới hạn bởi 2 đồ thị và \(x=a,\ x=b\) là:</p>
+      <p style="text-align:center;font-size:22px;">\[S=\int_a^b |f(x)-g(x)|\,dx.\]</p>
+      <p><i>Chú ý:</i> Nếu chưa cho cận, cận là nghiệm phương trình hoành độ giao điểm \(f(x)=g(x)\).</p>
+    </div>
+    <div class="theory-box">
+      <h3>1.3 Quy trình giải bài toán diện tích</h3>
+      <ul>
+        <li><b>Bước 1:</b> Xác định các đường giới hạn, tìm cận (từ đề hoặc giải \(f(x)=g(x)\)).</li>
+        <li><b>Bước 2:</b> Vẽ hình / xét dấu để biết đồ thị nào trên, có cắt nhau trong khoảng đang xét không.</li>
+        <li><b>Bước 3:</b> Viết \(S=\int_a^b |f(x)-g(x)|dx\), bỏ dấu GTTĐ (tách đoạn nếu cần).</li>
+        <li><b>Bước 4:</b> Tính tích phân và kết luận.</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- TAB 2: 30 CÂU TRẮC NGHIỆM 4 ĐÁP ÁN -->
+  <div id="quiz-mc" class="tab-content">
+    <h2>Trắc nghiệm 4 đáp án (30 câu)</h2>
+    <div class="group-tabs">
+      <button class="mc-tab-btn active" onclick="switchMCGroup(1)">Nhóm 1 (Câu 1–10)</button>
+      <button class="mc-tab-btn" onclick="switchMCGroup(2)">Nhóm 2 (Câu 11–20)</button>
+      <button class="mc-tab-btn" onclick="switchMCGroup(3)">Nhóm 3 (Câu 21–30)</button>
+    </div>
+    <div id="mc-quiz-container"></div>
+  </div>
+
+  <!-- TAB 3: PHÒNG THI THEO MẪU BỘ GD -->
+  <div id="quiz-sat" class="tab-content">
+    <h2>Phòng Thi – Mẫu Bộ GD&ĐT (22 câu – 3 phần)</h2>
+    <div id="sat-intro">
+      <div class="theory-box">
+        <h3>Cấu trúc đề thi</h3>
+        <ul>
+          <li><b>Phần I (Câu 1–12):</b> Trắc nghiệm nhiều lựa chọn – 12 câu × 0.25đ = <b>3 điểm</b>.</li>
+          <li><b>Phần II (Câu 13–16):</b> Trắc nghiệm đúng/sai – 4 câu × 1đ = <b>4 điểm</b>. (1 ý đúng: 0.1đ; 2 ý: 0.25đ; 3 ý: 0.5đ; 4 ý: 1đ)</li>
+          <li><b>Phần III (Câu 17–22):</b> Trả lời ngắn – 6 câu × 0.5đ = <b>3 điểm</b>.</li>
+        </ul>
+        <p style="margin:8px 0 0;"><b>Thời gian làm bài:</b> 90 phút.</p>
+      </div>
+      <button class="btn-primary" onclick="startExam()">▶ Bắt đầu làm bài</button>
+    </div>
+
+    <div id="exam-area" style="display:none;">
+      <div class="sat-header">
+        <div>Tiến độ: <b><span id="exam-progress">1/22</span></b></div>
+        <div class="timer" id="exam-timer">90:00</div>
+      </div>
+      <div class="progress-bar"><span id="exam-progress-bar" style="width:4.5%"></span></div>
+      <div id="exam-question-area"></div>
+      <div class="sat-nav">
+        <button class="prev" onclick="prevExam()" id="btn-prev">← Câu trước</button>
+        <button class="next" onclick="nextExam()" id="btn-next">Câu tiếp →</button>
+      </div>
+    </div>
+
+    <div id="sat-result-area" style="display:none;">
+      <div class="result-box">
+        <h2>Kết Quả Bài Thi</h2>
+        <div id="sat-score"></div>
+        <div id="sat-evaluation" style="font-size:16px;margin-bottom:10px;"></div>
+        <div class="score-breakdown" id="score-breakdown"></div>
+        <button class="btn-primary" onclick="startExam()" style="margin-top:14px;">🔄 Làm lại</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 4 -->
+  <div id="api-guide" class="tab-content">
+    <h2>Hướng dẫn lấy API Key Google Gemini</h2>
+    <p>Để dùng trợ lý AI giải đáp bài tập, cần API Key miễn phí từ Google.</p>
+    <ol>
+      <li>Truy cập <a href="https://aistudio.google.com/app/apikey" target="_blank">https://aistudio.google.com/app/apikey</a></li>
+      <li>Đăng nhập bằng tài khoản Google (Gmail).</li>
+      <li>Nhấn <b>"Create API key"</b>.</li>
+      <li>Chọn Project có sẵn hoặc tạo mới, rồi nhấn <b>"Create API key in existing project"</b>.</li>
+      <li>Sao chép chuỗi ký tự API Key vừa tạo.</li>
+      <li>Dán vào ô bên dưới và nhấn <b>Lưu</b>.</li>
+    </ol>
+    <div style="margin-top:20px;display:flex;gap:10px;flex-wrap:wrap;">
+      <input type="password" id="api-key-input" placeholder="Dán API Key vào đây..." style="flex:1;min-width:220px;">
+      <button class="btn-primary" onclick="saveApiKey()">💾 Lưu API Key</button>
+    </div>
+    <p id="api-status" style="color:var(--ok);font-weight:700;margin-top:10px;"></p>
+  </div>
+</div>
+
+<button id="ai-chat-btn" onclick="toggleAIChat()">🤖 Hỏi AI Giáo Viên</button>
+<div id="ai-chat-window">
+  <div id="ai-chat-header">
+    <span>Trợ lý Toán Học (Gemini)</span>
+    <span style="cursor:pointer;" onclick="toggleAIChat()">✖</span>
+  </div>
+  <div id="ai-chat-body">
+    <p style="font-size:12px;color:gray;text-align:center;">AI có thể mắc lỗi. Hãy kiểm tra lại thông tin!</p>
+  </div>
+  <div id="ai-chat-input-area">
+    <input type="text" id="ai-chat-input" placeholder="Nhập câu hỏi Toán..." onkeypress="handleChatEnter(event)">
+    <button id="ai-chat-send" onclick="sendChatMessage()">Gửi</button>
+  </div>
+</div>
+
+<script>
+/* ============ TAB ============ */
+function openTab(evt, tabName){
+  document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById(tabName).classList.add('active');
+  evt.currentTarget.classList.add('active');
+}
+function openApiGuide(){
+  document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('api-guide').classList.add('active');
+  document.querySelectorAll('.nav-btn')[3].classList.add('active');
+}
+
+/* ============ TAB 2: 30 CÂU TRẮC NGHIỆM 4 ĐÁP ÁN ============ */
+const mcData = {
+  1: [
+    {id:1, q:"Diện tích hình phẳng giới hạn bởi \\(y=f(x)\\) liên tục trên \\([a;b]\\), trục \\(Ox\\), \\(x=a,\\ x=b\\) là:",
+      o:["\\(\\int_a^b f(x)dx\\)","\\(\\int_a^b |f(x)|dx\\)","\\(\\left|\\int_a^b f(x)dx\\right|\\)","\\(\\int_b^a |f(x)|dx\\)"], c:1,
+      hint:"Công thức tổng quát phải có dấu giá trị tuyệt đối bên trong tích phân."},
+    {id:2, q:"Trên \\([a;b]\\), cho \\(f(x)\\le 0\\). Diện tích hình phẳng giới hạn bởi \\(y=f(x)\\), \\(Ox\\), \\(x=a,\\ x=b\\) là:",
+      o:["\\(\\int_a^b f(x)dx\\)","\\(-\\int_a^b f(x)dx\\)","\\(\\int_a^b f(x)dx -a-b\\)","\\(2\\int_a^b f(x)dx\\)"], c:1,
+      hint:"Khi \\(f(x)\\le 0\\) thì \\(|f(x)|=-f(x)\\)."},
+    {id:3, q:"Diện tích hình phẳng giới hạn bởi \\(y=f(x)\\), \\(y=g(x)\\) trên \\([a;b]\\) là:",
+      o:["\\(\\int_a^b (f(x)-g(x))dx\\)","\\(\\int_a^b (f(x)+g(x))dx\\)","\\(\\int_a^b |f(x)-g(x)|dx\\)","\\(\\left|\\int_a^b (f(x)-g(x))dx\\right|\\)"], c:2,
+      hint:"Công thức tổng quát: \\(S=\\int_a^b|f-g|dx\\)."},
+    {id:4, q:"Nếu đề không cho cận \\(a,b\\), ta tìm cận bằng cách:",
+      o:["Giải \\(f(x)=0\\)","Giải \\(g(x)=0\\)","Giải \\(f(x)=g(x)\\)","Giải \\(f'(x)=g'(x)\\)"], c:2,
+      hint:"Cận là hoành độ giao điểm – nghiệm phương trình \\(f(x)=g(x)\\)."},
+    {id:5, q:"Diện tích hình phẳng luôn là:",
+      o:["Số có thể âm hoặc dương","Số không âm","Số luôn bằng 1","Số luôn dương"], c:1,
+      hint:"Diện tích là đại lượng hình học không âm (có thể bằng 0 khi suy biến)."},
+    {id:6, q:"Giá trị \\(\\int_{-1}^{1}|x|\\,dx\\) bằng:",
+      o:["\\(0\\)","\\(1\\)","\\(2\\)","\\(\\tfrac{1}{2}\\)"], c:1,
+      hint:"\\(\\int_{-1}^{0}(-x)dx+\\int_0^1 x\\,dx=\\tfrac{1}{2}+\\tfrac{1}{2}=1\\)."},
+    {id:7, q:"Giá trị \\(\\left|\\int_{-1}^{1} x\\,dx\\right|\\) bằng:",
+      o:["\\(0\\)","\\(1\\)","\\(2\\)","\\(\\tfrac{1}{2}\\)"], c:0,
+      hint:"\\(\\int_{-1}^1 x\\,dx=0\\) (hàm lẻ) nên giá trị tuyệt đối bằng 0."},
+    {id:8, q:"Đồ thị \\(y=x^2-1\\) cắt trục \\(Ox\\) tại:",
+      o:["\\(x=0\\)","\\(x=1\\) và \\(x=-1\\)","Chỉ \\(x=1\\)","\\(x=\\pm 2\\)"], c:1,
+      hint:"\\(x^2-1=0\\Leftrightarrow x=\\pm 1\\)."},
+    {id:9, q:"Phương trình hoành độ giao điểm của \\(y=x^2\\) và \\(y=x\\) là:",
+      o:["\\(x^2=x\\)","\\(x^2+x=0\\)","\\(x^2=1\\)","\\(x=1\\)"], c:0,
+      hint:"Cho hai biểu thức bằng nhau: \\(x^2=x\\)."},
+    {id:10, q:"Diện tích hình phẳng giới hạn bởi \\(y=x^2\\), \\(Ox\\), \\(x=0,\\ x=1\\) bằng:",
+      o:["\\(\\tfrac{1}{3}\\)","\\(\\tfrac{1}{2}\\)","\\(1\\)","\\(\\tfrac{2}{3}\\)"], c:0,
+      hint:"\\(\\int_0^1 x^2 dx=\\tfrac{1}{3}\\)."}
+  ],
+  2: [
+    {id:11, q:"Diện tích hình phẳng giới hạn bởi \\(y=x^3\\), \\(Ox\\), \\(x=0,\\ x=2\\) bằng:",
+      o:["\\(2\\)","\\(4\\)","\\(8\\)","\\(16\\)"], c:1,
+      hint:"\\(\\int_0^2 x^3 dx=\\tfrac{x^4}{4}\\Big|_0^2=4\\)."},
+    {id:12, q:"Diện tích hình phẳng giới hạn bởi \\(y=\\sqrt{x}\\), \\(Ox\\), \\(x=0,\\ x=4\\) bằng:",
+      o:["\\(\\tfrac{8}{3}\\)","\\(\\tfrac{16}{3}\\)","\\(4\\)","\\(\\tfrac{32}{3}\\)"], c:1,
+      hint:"\\(\\int_0^4\\sqrt{x}\\,dx=\\tfrac{2}{3}x^{3/2}\\Big|_0^4=\\tfrac{16}{3}\\)."},
+    {id:13, q:"Diện tích hình phẳng giới hạn bởi \\(y=\\tfrac{1}{x}\\), \\(Ox\\), \\(x=1,\\ x=e\\) bằng:",
+      o:["\\(1\\)","\\(e\\)","\\(e-1\\)","\\(\\tfrac{1}{2}\\)"], c:0,
+      hint:"\\(\\int_1^e \\tfrac{dx}{x}=\\ln e=1\\)."},
+    {id:14, q:"Diện tích hình phẳng giới hạn bởi \\(y=e^x\\), \\(Ox\\), \\(x=0,\\ x=1\\) bằng:",
+      o:["\\(e\\)","\\(e-1\\)","\\(1\\)","\\(1-e\\)"], c:1,
+      hint:"\\(\\int_0^1 e^x dx=e-1\\)."},
+    {id:15, q:"Diện tích hình phẳng giới hạn bởi \\(y=x^2-1\\), \\(Ox\\), \\(x=2,\\ x=3\\) bằng:",
+      o:["\\(\\tfrac{16}{3}\\)","\\(\\tfrac{8}{3}\\)","\\(4\\)","\\(\\tfrac{22}{3}\\)"], c:0,
+      hint:"\\(\\int_2^3(x^2-1)dx=\\left[\\tfrac{x^3}{3}-x\\right]_2^3=6-\\tfrac{2}{3}=\\tfrac{16}{3}\\)."},
+    {id:16, q:"Diện tích hình phẳng giới hạn bởi \\(y=\\sin x\\), \\(Ox\\), \\(x=0,\\ x=\\pi\\) bằng:",
+      o:["\\(1\\)","\\(2\\)","\\(\\pi\\)","\\(\\tfrac{\\pi}{2}\\)"], c:1,
+      hint:"\\(\\int_0^{\\pi}\\sin x\\,dx=-\\cos x\\big|_0^{\\pi}=2\\)."},
+    {id:17, q:"Diện tích hình phẳng giới hạn bởi \\(y=\\cos x\\), \\(Ox\\), \\(x=0,\\ x=\\tfrac{\\pi}{2}\\) bằng:",
+      o:["\\(\\tfrac{1}{2}\\)","\\(1\\)","\\(\\tfrac{\\pi}{2}\\)","\\(2\\)"], c:1,
+      hint:"\\(\\int_0^{\\pi/2}\\cos x\\,dx=\\sin x\\big|_0^{\\pi/2}=1\\)."},
+    {id:18, q:"Diện tích hình phẳng giới hạn bởi \\(y=x^2\\) và \\(y=2x\\) bằng:",
+      o:["\\(\\tfrac{2}{3}\\)","\\(\\tfrac{4}{3}\\)","\\(2\\)","\\(\\tfrac{8}{3}\\)"], c:1,
+      hint:"Giao điểm \\(x=0,x=2\\); \\(\\int_0^2(2x-x^2)dx=\\tfrac{4}{3}\\)."},
+    {id:19, q:"Diện tích hình phẳng giới hạn bởi \\(y=x^3\\) và \\(y=x\\) trên \\([-1;1]\\) bằng:",
+      o:["\\(\\tfrac{1}{4}\\)","\\(\\tfrac{1}{2}\\)","\\(1\\)","\\(\\tfrac{3}{4}\\)"], c:1,
+      hint:"\\(2\\int_0^1(x-x^3)dx=2\\left(\\tfrac{1}{2}-\\tfrac{1}{4}\\right)=\\tfrac{1}{2}\\)."},
+    {id:20, q:"Diện tích hình phẳng giới hạn bởi \\(y=x^2\\) và \\(y=2-x\\) bằng:",
+      o:["\\(\\tfrac{7}{6}\\)","\\(\\tfrac{9}{2}\\)","\\(\\tfrac{4}{3}\\)","\\(3\\)"], c:1,
+      hint:"Giao điểm \\(x=-2,x=1\\); \\(\\int_{-2}^1(2-x-x^2)dx=\\tfrac{9}{2}\\)."}
+  ],
+  3: [
+    {id:21, q:"Diện tích hình phẳng giới hạn bởi \\(y=x^2\\) và \\(y=4\\) bằng:",
+      o:["\\(\\tfrac{8}{3}\\)","\\(\\tfrac{16}{3}\\)","\\(\\tfrac{32}{3}\\)","\\(\\tfrac{64}{3}\\)"], c:2,
+      hint:"\\(\\int_{-2}^2(4-x^2)dx=\\tfrac{32}{3}\\)."},
+    {id:22, q:"Diện tích hình phẳng giới hạn bởi \\(y=-x^2+4x\\) và \\(Ox\\) bằng:",
+      o:["\\(\\tfrac{16}{3}\\)","\\(\\tfrac{32}{3}\\)","\\(8\\)","\\(\\tfrac{64}{3}\\)"], c:1,
+      hint:"Giao \\(x=0,4\\); \\(\\int_0^4(-x^2+4x)dx=\\tfrac{32}{3}\\)."},
+    {id:23, q:"Diện tích hình phẳng giới hạn bởi \\(y=\\sqrt{x}\\) và \\(y=x\\) bằng:",
+      o:["\\(\\tfrac{1}{6}\\)","\\(\\tfrac{1}{3}\\)","\\(\\tfrac{1}{2}\\)","\\(1\\)"], c:0,
+      hint:"\\(\\int_0^1(\\sqrt{x}-x)dx=\\tfrac{2}{3}-\\tfrac{1}{2}=\\tfrac{1}{6}\\)."},
+    {id:24, q:"Diện tích hình phẳng giới hạn bởi \\(y=x^2-4\\) và \\(Ox\\) bằng:",
+      o:["\\(\\tfrac{16}{3}\\)","\\(\\tfrac{32}{3}\\)","\\(8\\)","\\(16\\)"], c:1,
+      hint:"\\(\\left|\\int_{-2}^{2}(x^2-4)dx\\right|=\\tfrac{32}{3}\\)."},
+    {id:25, q:"Diện tích hình tròn \\(x^2+y^2=4\\) bằng:",
+      o:["\\(2\\pi\\)","\\(4\\pi\\)","\\(8\\pi\\)","\\(\\pi\\)"], c:1,
+      hint:"Bán kính \\(R=2\\Rightarrow S=\\pi R^2=4\\pi\\)."},
+    {id:26, q:"Diện tích elip \\(\\dfrac{x^2}{9}+\\dfrac{y^2}{4}=1\\) bằng:",
+      o:["\\(3\\pi\\)","\\(4\\pi\\)","\\(6\\pi\\)","\\(12\\pi\\)"], c:2,
+      hint:"\\(S=\\pi ab=\\pi\\cdot 3\\cdot 2=6\\pi\\)."},
+    {id:27, q:"Diện tích hình phẳng giới hạn bởi \\(y=x^3\\) và \\(y=x^2\\) bằng:",
+      o:["\\(\\tfrac{1}{12}\\)","\\(\\tfrac{1}{6}\\)","\\(\\tfrac{1}{3}\\)","\\(\\tfrac{1}{4}\\)"], c:0,
+      hint:"\\(\\int_0^1(x^2-x^3)dx=\\tfrac{1}{3}-\\tfrac{1}{4}=\\tfrac{1}{12}\\)."},
+    {id:28, q:"Diện tích hình phẳng giới hạn bởi \\(y=\\ln x\\), \\(Ox\\), \\(x=1,\\ x=e\\) bằng:",
+      o:["\\(1\\)","\\(2\\)","\\(e\\)","\\(e-1\\)"], c:0,
+      hint:"\\(\\int_1^e\\ln x\\,dx=[x\\ln x-x]_1^e=1\\)."},
+    {id:29, q:"Diện tích hình phẳng giới hạn bởi \\(y=\\sin x\\), \\(Ox\\), \\(x=0,\\ x=2\\pi\\) bằng:",
+      o:["\\(0\\)","\\(2\\)","\\(4\\)","\\(2\\pi\\)"], c:2,
+      hint:"\\(\\int_0^{2\\pi}|\\sin x|dx=2\\cdot 2=4\\)."},
+    {id:30, q:"Nếu phép tính diện tích cho ra kết quả âm, ta cần:",
+      o:["Giữ nguyên","Lấy giá trị tuyệt đối","Chia đôi","Cộng thêm 1"], c:1,
+      hint:"Diện tích là đại lượng không âm nên phải lấy trị tuyệt đối."}
+  ]
+};
+
+let currentMCGroup = 1;
+function switchMCGroup(g){
+  currentMCGroup = g;
+  document.querySelectorAll('.mc-tab-btn').forEach((b,i)=>b.classList.toggle('active',i===g-1));
+  renderMCQuiz();
+}
+function renderMCQuiz(){
+  const container = document.getElementById('mc-quiz-container');
+  container.innerHTML = '';
+  (mcData[currentMCGroup]||[]).forEach(q=>{
+    const div = document.createElement('div');
+    div.className = 'question-card';
+    let html = `<p><b>Câu ${q.id}:</b> ${q.q}</p><div class="options">`;
+    q.o.forEach((opt,i)=>{
+      html += `<label><input type="radio" name="mc${q.id}" value="${i}" onchange="checkMCAnswer(${q.id},${i})"> <span><b>${String.fromCharCode(65+i)}.</b> ${opt}</span></label>`;
+    });
+    html += `</div><div class="feedback" id="mcfeedback-${q.id}"></div>`;
+    div.innerHTML = html;
+    container.appendChild(div);
+  });
+  if(window.MathJax) MathJax.typesetPromise();
+}
+function checkMCAnswer(qId, userChoice){
+  const q = mcData[currentMCGroup].find(x=>x.id===qId);
+  const fb = document.getElementById(`mcfeedback-${qId}`);
+  fb.classList.add('show');
+  const correctLetter = String.fromCharCode(65 + q.c);
+  if(userChoice === q.c){
+    fb.className = 'feedback show good';
+    fb.innerHTML = `✔ Chính xác! Đáp án <b>${correctLetter}</b>.<br><i>Giải thích: ${q.hint}</i>`;
+  } else {
+    fb.className = 'feedback show bad';
+    fb.innerHTML = `✘ Chưa đúng. Đáp án đúng là <b>${correctLetter}</b>.<br><i>Gợi ý: ${q.hint}</i>`;
+  }
+  if(window.MathJax) MathJax.typesetPromise([fb]);
+}
+renderMCQuiz();
+
+/* ============ TAB 3: PHÒNG THI – MẪU BỘ GD (22 câu, 3 phần) ============ */
+const examData = {
+  part1: [ // 12 câu MC
+    {q:"Diện tích hình phẳng giới hạn bởi \\(y=x^2-3x+2\\), trục \\(Ox\\), \\(x=0\\) và \\(x=3\\) bằng:",
+      o:["\\(\\tfrac{5}{6}\\)","\\(\\tfrac{11}{6}\\)","\\(\\tfrac{5}{2}\\)","\\(\\tfrac{3}{2}\\)"], c:2},
+    {q:"Diện tích hình phẳng giới hạn bởi \\(y=x^3-3x^2+2x\\) và trục \\(Ox\\) bằng:",
+      o:["\\(\\tfrac{1}{4}\\)","\\(\\tfrac{1}{2}\\)","\\(1\\)","\\(2\\)"], c:1},
+    {q:"Diện tích hình phẳng giới hạn bởi \\(y=x^2\\), \\(y=x\\), \\(x=0\\) và \\(x=2\\) bằng:",
+      o:["\\(\\tfrac{1}{6}\\)","\\(\\tfrac{5}{6}\\)","\\(1\\)","\\(\\tfrac{4}{3}\\)"], c:2},
+    {q:"Diện tích hình phẳng giới hạn bởi \\(y=x^2\\) và \\(y=2-x\\) bằng:",
+      o:["\\(\\tfrac{7}{6}\\)","\\(\\tfrac{9}{2}\\)","\\(\\tfrac{4}{3}\\)","\\(3\\)"], c:1},
+    {q:"Diện tích hình phẳng giới hạn bởi \\(y=\\sqrt{x}\\) và \\(y=x\\) bằng:",
+      o:["\\(\\tfrac{1}{6}\\)","\\(\\tfrac{1}{3}\\)","\\(\\tfrac{1}{2}\\)","\\(1\\)"], c:0},
+    {q:"Diện tích hình phẳng giới hạn bởi \\(y=x^2\\) và \\(y=2x\\) bằng:",
+      o:["\\(\\tfrac{2}{3}\\)","\\(\\tfrac{4}{3}\\)","\\(2\\)","\\(\\tfrac{8}{3}\\)"], c:1},
+    {q:"Diện tích hình phẳng giới hạn bởi \\(y=e^x\\), \\(y=1\\), \\(x=0\\) và \\(x=1\\) bằng:",
+      o:["\\(e-1\\)","\\(e-2\\)","\\(e\\)","\\(1\\)"], c:1},
+    {q:"Diện tích hình phẳng giới hạn bởi \\(y=\\ln x\\), \\(Ox\\), \\(x=1\\) và \\(x=e\\) bằng:",
+      o:["\\(e-1\\)","\\(1\\)","\\(2\\)","\\(e\\)"], c:1},
+    {q:"Diện tích hình phẳng giới hạn bởi \\(y=x^2-4\\) và trục \\(Ox\\) bằng:",
+      o:["\\(\\tfrac{16}{3}\\)","\\(\\tfrac{32}{3}\\)","\\(8\\)","\\(16\\)"], c:1},
+    {q:"Diện tích hình phẳng giới hạn bởi \\(y=\\sin x\\), \\(Ox\\), \\(x=0\\) và \\(x=2\\pi\\) bằng:",
+      o:["\\(2\\)","\\(4\\)","\\(0\\)","\\(\\pi\\)"], c:1},
+    {q:"Diện tích hình phẳng giới hạn bởi \\(y=x^2\\) và \\(y=4\\) bằng:",
+      o:["\\(\\tfrac{8}{3}\\)","\\(\\tfrac{16}{3}\\)","\\(\\tfrac{32}{3}\\)","\\(\\tfrac{64}{3}\\)"], c:2},
+    {q:"Diện tích hình phẳng giới hạn bởi \\(y=-x^2+4x\\) và trục \\(Ox\\) bằng:",
+      o:["\\(\\tfrac{16}{3}\\)","\\(\\tfrac{32}{3}\\)","\\(8\\)","\\(\\tfrac{64}{3}\\)"], c:1}
+  ],
+  part2: [ // 4 câu đúng/sai, 4 ý mỗi câu
+    {q:"Cho hàm số \\(f(x)=x^2-2x\\).",
+      subs:[
+        {text:"Phương trình \\(f(x)=0\\) có hai nghiệm \\(x=0\\) và \\(x=2\\).", a:true},
+        {text:"Diện tích hình phẳng giới hạn bởi \\(y=f(x)\\), \\(Ox\\), \\(x=0,\\ x=2\\) bằng \\(\\tfrac{4}{3}\\).", a:true},
+        {text:"Diện tích hình phẳng giới hạn bởi \\(y=f(x)\\), \\(Ox\\), \\(x=0,\\ x=3\\) bằng \\(\\tfrac{4}{3}\\).", a:false},
+        {text:"Trên khoảng \\((0;2)\\), đồ thị hàm số nằm phía trên trục \\(Ox\\).", a:false}
+      ]},
+    {q:"Cho hàm số \\(f(x)=x^3-x\\).",
+      subs:[
+        {text:"Phương trình \\(f(x)=0\\) có ba nghiệm \\(x=-1,\\ x=0,\\ x=1\\).", a:true},
+        {text:"Diện tích hình phẳng giới hạn bởi \\(y=f(x)\\), \\(Ox\\), \\(x=-1,\\ x=1\\) bằng \\(\\tfrac{1}{2}\\).", a:true},
+        {text:"Diện tích hình phẳng giới hạn bởi \\(y=f(x)\\), \\(Ox\\), \\(x=0,\\ x=2\\) bằng \\(2\\).", a:false},
+        {text:"Hàm số \\(f(x)\\) đồng biến trên khoảng \\((1;+\\infty)\\).", a:true}
+      ]},
+    {q:"Cho hai đồ thị \\(y=x^2\\) và \\(y=x+2\\).",
+      subs:[
+        {text:"Hoành độ giao điểm của hai đồ thị là \\(x=-1\\) và \\(x=2\\).", a:true},
+        {text:"Diện tích hình phẳng giới hạn bởi hai đồ thị bằng \\(\\tfrac{9}{2}\\).", a:true},
+        {text:"Trên khoảng \\((-1;2)\\), đồ thị \\(y=x+2\\) nằm phía trên \\(y=x^2\\).", a:true},
+        {text:"Diện tích hình phẳng giới hạn bởi hai đồ thị trên đoạn \\([0;2]\\) bằng \\(\\tfrac{4}{3}\\).", a:false}
+      ]},
+    {q:"Cho hai đồ thị \\(y=x^3\\) và \\(y=x\\).",
+      subs:[
+        {text:"Hoành độ giao điểm của hai đồ thị là \\(x=-1,\\ x=0,\\ x=1\\).", a:true},
+        {text:"Diện tích hình phẳng giới hạn bởi hai đồ thị trên \\([-1;1]\\) bằng \\(\\tfrac{1}{2}\\).", a:true},
+        {text:"Diện tích hình phẳng giới hạn bởi \\(y=x^3\\), \\(Ox\\), \\(x=0,\\ x=2\\) bằng \\(4\\).", a:true},
+        {text:"Diện tích hình phẳng giới hạn bởi \\(y=x\\), \\(Ox\\), \\(x=0,\\ x=2\\) bằng \\(4\\).", a:false}
+      ]}
+  ],
+  part3: [ // 6 câu trả lời ngắn
+    {q:"Diện tích hình phẳng giới hạn bởi \\(y=x^2-2x\\) và trục \\(Ox\\).", a:4/3, label:"4/3"},
+    {q:"Diện tích hình phẳng giới hạn bởi \\(y=\\sqrt{x}\\), \\(Ox\\), \\(x=1\\) và \\(x=4\\).", a:14/3, label:"14/3"},
+    {q:"Diện tích hình phẳng giới hạn bởi \\(y=\\ln x\\), \\(Ox\\), \\(x=1\\) và \\(x=e\\).", a:1, label:"1"},
+    {q:"Diện tích hình phẳng giới hạn bởi \\(y=x^2\\) và \\(y=4\\).", a:32/3, label:"32/3"},
+    {q:"Cổng parabol có đáy rộng \\(6\\,m\\), cao \\(4\\,m\\), mô hình hóa bởi \\(y=-\\tfrac{4}{9}x^2+4\\). Tính diện tích mặt trước của cổng (đơn vị \\(m^2\\)).", a:16, label:"16"},
+    {q:"Diện tích hình phẳng giới hạn bởi \\(y=x^2\\) và \\(y=2-x^2\\).", a:8/3, label:"8/3"}
+  ]
+};
+
+let examIdx = 0;
+let examTimeLeft = 90*60;
+let examTimerInterval = null;
+let ansP1 = {};
+let ansP2 = {}; // ansP2[i] = [bool,bool,bool,bool]
+let ansP3 = {};
+
+function startExam(){
+  document.getElementById('sat-intro').style.display='none';
+  document.getElementById('exam-area').style.display='block';
+  document.getElementById('sat-result-area').style.display='none';
+  examIdx = 0; ansP1 = {}; ansP2 = {}; ansP3 = {}; examTimeLeft = 90*60;
+  clearInterval(examTimerInterval);
+  startExamTimer();
+  renderExamQuestion();
+}
+function startExamTimer(){
+  const el = document.getElementById('exam-timer');
+  el.textContent = '90:00';
+  examTimerInterval = setInterval(()=>{
+    examTimeLeft--;
+    const m = Math.floor(examTimeLeft/60), s = examTimeLeft%60;
+    el.textContent = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+    if(examTimeLeft<=0){clearInterval(examTimerInterval); finishExam();}
+  },1000);
+}
+function renderExamQuestion(){
+  const area = document.getElementById('exam-question-area');
+  area.innerHTML = '';
+  document.getElementById('exam-progress').textContent = `${examIdx+1}/22`;
+  document.getElementById('exam-progress-bar').style.width = `${((examIdx+1)/22)*100}%`;
+  let partLabel, content;
+  if(examIdx < 12){
+    partLabel = 'PHẦN I – Trắc nghiệm nhiều lựa chọn';
+    content = renderP1(examIdx);
+  } else if(examIdx < 16){
+    partLabel = 'PHẦN II – Trắc nghiệm đúng / sai';
+    content = renderP2(examIdx - 12);
+  } else {
+    partLabel = 'PHẦN III – Trả lời ngắn';
+    content = renderP3(examIdx - 16);
+  }
+  area.innerHTML = `<div class="part-label">${partLabel}</div>${content}`;
+  document.getElementById('btn-prev').disabled = examIdx===0;
+  document.getElementById('btn-next').textContent = examIdx===21 ? '✓ Hoàn Thành' : 'Câu tiếp →';
+  if(window.MathJax) MathJax.typesetPromise();
+}
+function renderP1(i){
+  const q = examData.part1[i];
+  let h = `<div class="sat-question"><b>Câu ${i+1}:</b> ${q.q}</div><div class="sat-options">`;
+  q.o.forEach((opt,j)=>{
+    const sel = ansP1[i]===j ? ' selected' : '';
+    h += `<button class="${sel}" onclick="pickP1(${i},${j})"><span class="tag">${String.fromCharCode(65+j)}.</span><span>${opt}</span></button>`;
+  });
+  h += '</div>';
+  return h;
+}
+function pickP1(i,j){ ansP1[i]=j; renderExamQuestion(); }
+
+function renderP2(i){
+  const q = examData.part2[i];
+  if(!ansP2[i]) ansP2[i] = [null,null,null,null];
+  let h = `<div class="sat-question"><b>Câu ${13+i}:</b> ${q.q}</div><div class="tf-subs">`;
+  q.subs.forEach((s,j)=>{
+    const letter = ['a','b','c','d'][j];
+    const cur = ansP2[i][j];
+    h += `<div class="tf-sub">
+      <p class="tf-sub-text"><b>${letter})</b> ${s.text}</p>
+      <div class="tf-sub-choices">
+        <label><input type="radio" name="p2-${i}-${j}" value="1" ${cur===true?'checked':''} onchange="pickP2(${i},${j},true)"> Đúng</label>
+        <label><input type="radio" name="p2-${i}-${j}" value="0" ${cur===false?'checked':''} onchange="pickP2(${i},${j},false)"> Sai</label>
+      </div>
+    </div>`;
+  });
+  h += '</div>';
+  return h;
+}
+function pickP2(i,j,val){ ansP2[i][j]=val; }
+
+function renderP3(i){
+  const q = examData.part3[i];
+  const cur = ansP3[i]||'';
+  return `<div class="sat-question"><b>Câu ${17+i}:</b> ${q.q}</div>
+    <div class="short-answer-wrap">
+      <input type="text" id="short-input" placeholder="Nhập đáp án (VD: 4/3 hoặc 1.33)..." value="${cur}"
+        oninput="ansP3[${i}] = this.value">
+    </div>
+    <p style="color:var(--muted);font-size:13px;margin-top:10px;">Lưu ý: Nhập được phân số (VD: 4/3) hoặc số thập phân.</p>`;
+}
+
+function nextExam(){
+  if(examIdx<21){ examIdx++; renderExamQuestion(); }
+  else if(confirm('Bạn có chắc muốn nộp bài?')) finishExam();
+}
+function prevExam(){ if(examIdx>0){ examIdx--; renderExamQuestion(); } }
+
+function parseShortAnswer(s){
+  if(!s) return NaN;
+  s = String(s).trim().replace(/\s+/g,'').replace(',','.');
+  if(s.includes('/')){
+    const p = s.split('/');
+    if(p.length===2){
+      const a = parseFloat(p[0]), b = parseFloat(p[1]);
+      if(!isNaN(a)&&!isNaN(b)&&b!==0) return a/b;
+    }
+  }
+  return parseFloat(s);
+}
+
+function finishExam(){
+  clearInterval(examTimerInterval);
+  document.getElementById('exam-area').style.display='none';
+  document.getElementById('sat-result-area').style.display='block';
+
+  // Phần I
+  let p1Correct = 0;
+  examData.part1.forEach((q,i)=>{ if(ansP1[i]===q.c) p1Correct++; });
+  const p1Score = p1Correct*0.25;
+
+  // Phần II (MOET scoring)
+  let p2Score = 0, p2Detail = [];
+  examData.part2.forEach((q,i)=>{
+    let correctCount = 0;
+    q.subs.forEach((s,j)=>{ if(ansP2[i] && ansP2[i][j] === s.a) correctCount++; });
+    let s = 0;
+    if(correctCount===1) s = 0.1;
+    else if(correctCount===2) s = 0.25;
+    else if(correctCount===3) s = 0.5;
+    else if(correctCount===4) s = 1;
+    p2Score += s;
+    p2Detail.push({correctCount, score:s});
+  });
+
+  // Phần III
+  let p3Score = 0, p3Correct = 0;
+  examData.part3.forEach((q,i)=>{
+    const v = parseShortAnswer(ansP3[i]);
+    if(!isNaN(v) && Math.abs(v - q.a) < 0.02){ p3Score += 0.5; p3Correct++; }
+  });
+
+  const total = p1Score + p2Score + p3Score;
+  const scoreFixed = total.toFixed(2);
+
+  document.getElementById('sat-score').innerHTML = `${scoreFixed} <small style="font-size:18px;color:#667085;">/ 10</small>`;
+
+  let ev = '';
+  if(total>=9) ev='🌟 Xuất sắc! Em đã thành thạo ứng dụng tích phân.';
+  else if(total>=7) ev='👍 Tốt! Hãy luyện thêm phần tách khoảng để đạt điểm cao hơn.';
+  else if(total>=5) ev='📖 Khá! Cần ôn lại cách xét dấu \\(f(x)-g(x)\\) và phá giá trị tuyệt đối.';
+  else ev='💪 Cần cố gắng! Em nên xem lại lý thuyết và làm các ví dụ mẫu trước.';
+  document.getElementById('sat-evaluation').innerHTML = ev;
+
+  // Breakdown
+  const bd = document.getElementById('score-breakdown');
+  let p2Info = p2Detail.map((d,idx)=>`Câu ${13+idx}: ${d.correctCount}/4 ý → ${d.score.toFixed(2)}đ`).join('<br>');
+  bd.innerHTML = `
+    <div class="score-card"><b>${p1Score.toFixed(2)} / 3</b><small>Phần I: ${p1Correct}/12 câu đúng</small></div>
+    <div class="score-card"><b>${p2Score.toFixed(2)} / 4</b><small>Phần II: ${p2Info}</small></div>
+    <div class="score-card"><b>${p3Score.toFixed(2)} / 3</b><small>Phần III: ${p3Correct}/6 câu đúng</small></div>
+  `;
+  if(window.MathJax) MathJax.typesetPromise();
+}
+
+/* ============ GEMINI AI ============ */
+let geminiApiKey = localStorage.getItem('geminiApiKey') || '';
+function saveApiKey(){
+  const k = document.getElementById('api-key-input').value.trim();
+  if(k){localStorage.setItem('geminiApiKey',k); geminiApiKey=k;
+    document.getElementById('api-status').textContent='✅ Đã lưu API Key thành công!';}
+}
+if(geminiApiKey){
+  document.getElementById('api-key-input').value = geminiApiKey;
+  document.getElementById('api-status').textContent = '✅ Đã có API Key trong bộ nhớ.';
+}
+function toggleAIChat(){
+  const w = document.getElementById('ai-chat-window');
+  w.style.display = w.style.display==='flex'?'none':'flex';
+}
+function handleChatEnter(e){if(e.key==='Enter') sendChatMessage();}
+async function sendChatMessage(){
+  const input = document.getElementById('ai-chat-input');
+  const msg = input.value.trim(); if(!msg) return;
+  if(!geminiApiKey){alert("Vui lòng vào tab 'Cấu hình AI' để nhập API Key trước!");return;}
+  const body = document.getElementById('ai-chat-body');
+  body.innerHTML += `<div class="msg-user"><span>${msg}</span></div>`;
+  input.value=''; body.scrollTop = body.scrollHeight;
+  const loadId = 'load-'+Date.now();
+  body.innerHTML += `<div id="${loadId}" style="text-align:left;margin:8px 0;color:gray;">🤖 AI đang suy nghĩ...</div>`;
+  body.scrollTop = body.scrollHeight;
+  try{
+    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${geminiApiKey}`,{
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({contents:[{parts:[{text:
+        `Bạn là giáo viên Toán THPT tận tâm tên Trung. Trả lời ngắn gọn, dễ hiểu, khuyến khích học sinh. Dùng LaTeX trong $...$ cho công thức. Câu hỏi: ${msg}`}]}]})
+    });
+    const data = await res.json();
+    document.getElementById(loadId).remove();
+    if(data.candidates && data.candidates[0]?.content?.parts[0]?.text){
+      const t = data.candidates[0].content.parts[0].text.replace(/\n/g,'<br>');
+      body.innerHTML += `<div class="msg-ai"><span>${t}</span></div>`;
+      if(window.MathJax) MathJax.typesetPromise([body]);
+    } else {
+      body.innerHTML += `<div style="color:#d92d20;font-size:12px;">Lỗi: Không lấy được phản hồi. Kiểm tra API Key.</div>`;
+    }
+  } catch(e){
+    const l = document.getElementById(loadId); if(l) l.remove();
+    body.innerHTML += `<div style="color:#d92d20;font-size:12px;">Lỗi kết nối hoặc API Key không hợp lệ.</div>`;
+  }
+  body.scrollTop = body.scrollHeight;
+}
+</script>
+</body>
+</html>
